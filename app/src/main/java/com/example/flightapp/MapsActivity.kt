@@ -2,6 +2,7 @@ package com.example.flightapp
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.flightapp.JsonFetch.JsonFetch
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -9,6 +10,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -21,6 +23,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        var fetch  = JsonFetch()
+        fetch.fetchJson()
+
     }
 
     /**
@@ -45,4 +50,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.addMarker(MarkerOptions().position(koluszkiCords).title("Koluszki  marker"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(wroclawCords))
     }
+
+
 }

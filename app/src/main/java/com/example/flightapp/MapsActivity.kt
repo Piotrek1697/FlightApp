@@ -19,7 +19,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
-                .findFragmentById(R.id.map) as SupportMapFragment
+            .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
 
@@ -36,8 +36,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
 
         // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        val wroclawCords = LatLng(51.107883, 17.038538)
+        val golCords = LatLng(53.564861, 14.827060)
+        val koluszkiCords = LatLng(51.744240, 19.807680)
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(wroclawCords, 4.8f))
+        mMap.addMarker(MarkerOptions().position(wroclawCords).title("Wroclaw marker"))
+        mMap.addMarker(MarkerOptions().position(golCords).title("Goleniów marker"))
+        mMap.addMarker(MarkerOptions().position(koluszkiCords).title("Koluszki  marker"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(wroclawCords))
     }
 }

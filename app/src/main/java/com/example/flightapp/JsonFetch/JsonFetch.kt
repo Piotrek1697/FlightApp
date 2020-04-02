@@ -20,7 +20,7 @@ class JsonFetch {
                     println("Failed to execute request")
                     countDownLatch.countDown()
                 }
-
+                
                 override fun onResponse(call: Call, response: Response) {
                     val body = response.body?.string()
 

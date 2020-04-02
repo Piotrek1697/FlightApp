@@ -21,24 +21,21 @@ class JsonFetch {
             }
             override fun onResponse(call: Call, response: Response) {
                 val body = response.body?.string()
-                println(body)
+            println(body)
 
-                val gson = GsonBuilder().create()
-                val allFlights = gson.fromJson(body, AllFlights::class.java)
-
-            } //  <-- TU STAWIAM KROPKĘ DEBUGGERA
-
+            val gson = GsonBuilder().create()
+            val allFlights = gson.fromJson(body, AllFlights::class.java)
+            val info = GetInfoForMarkers(allFlights)
+                println("Origin Country " + info.getOriginCountry(1))
+        }
         })
-    }
+            }
+}
+
+class AllFlights(val states:List<List<String>>) {
 }
 
 
-// KLASY WRZUCIŁEM NA RAZIE TU, EBY BYŁO ŁATWIEJ
-class AllFlights(val states:List<List<String>>) { // <-- JEŻELI TU DAMY STRING ZAMIAST STATE, TO DA JAKIES WYNIKI, ALE ZLE
-}
-
-class State(val longitude: Float, val latitude: Float){
-}
 
 
 

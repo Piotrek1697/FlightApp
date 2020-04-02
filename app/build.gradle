@@ -38,4 +38,7 @@ dependencies {
     // DODALEM LIBKE DO JSON-A I GSON-A
     implementation("com.squareup.okhttp3:okhttp:4.4.0")
     implementation 'com.google.code.gson:gson:2.8.6'
+
+    //GOOGLE PINS
+    implementation 'com.google.maps.android:android-maps-utils:1.0.2'
 }

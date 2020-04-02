@@ -34,7 +34,7 @@ class JsonFetch {
 
 
 // KLASY WRZUCIŁEM NA RAZIE TU, EBY BYŁO ŁATWIEJ
-class AllFlights(val states:List<List<State>>) { // <-- JEŻELI TU DAMY STRING ZAMIAST STATE, TO DA JAKIES WYNIKI, ALE ZLE
+class AllFlights(val states:List<List<String>>) { // <-- JEŻELI TU DAMY STRING ZAMIAST STATE, TO DA JAKIES WYNIKI, ALE ZLE
 }
 
 class State(val longitude: Float, val latitude: Float){

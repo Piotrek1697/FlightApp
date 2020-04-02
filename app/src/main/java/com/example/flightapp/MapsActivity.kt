@@ -1,18 +1,26 @@
 package com.example.flightapp
 
-import androidx.appcompat.app.AppCompatActivity
+import android.animation.ObjectAnimator
 import android.os.Bundle
-
+import android.view.View
+import android.view.animation.Animation
+import android.view.animation.ScaleAnimation
+import android.widget.SearchView
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
+    private lateinit var searchView: SearchView
+    private lateinit var searchButton: FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +29,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        searchView = findViewById(R.id.searchView)
+        searchButton = findViewById(R.id.searchActionButton)
     }
 
     /**
@@ -45,4 +55,49 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.addMarker(MarkerOptions().position(koluszkiCords).title("Koluszki  marker"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(wroclawCords))
     }
+
+    fun searchButtonAction(view: View) {
+        ObjectAnimator.ofFloat(searchButton, View.ALPHA, 1f, 0f).setDuration(1000).start()
+        //searchButton.visibility = View.INVISIBLE
+        searchButton.isClickable = false
+
+        searchView.isClickable = true
+        searchView.visibility = View.VISIBLE
+        ObjectAnimator.ofFloat(searchView, View.ALPHA, 0f, 1f).setDuration(500).start()
+        val anim = ScaleAnimation(
+            0.0f,
+            1.0f,
+            1.0f,
+            1.0f,
+            Animation.RELATIVE_TO_SELF,
+            0f,
+            Animation.RELATIVE_TO_SELF,
+            0.5f
+        )
+        anim.duration = 700
+        searchView.startAnimation(anim)
+}
+
+    fun searchViewAction(view: View){
+        ObjectAnimator.ofFloat(searchView, View.ALPHA, 1f, 0f).setDuration(700).start()
+        searchView.visibility = View.INVISIBLE
+        searchView.isClickable = false
+
+        searchButton.visibility = View.VISIBLE
+        ObjectAnimator.ofFloat(searchButton, View.ALPHA, 0f, 1f).setDuration(1000).start()
+        val anim = ScaleAnimation(
+            1.0f,
+            0.0f,
+            1.0f,
+            1.0f,
+            Animation.RELATIVE_TO_SELF,
+            0.0f,
+            Animation.RELATIVE_TO_SELF,
+            0.5f
+        )
+        anim.duration = 700
+        searchView.startAnimation(anim)
+        searchButton.isClickable = true
+    }
+
 }

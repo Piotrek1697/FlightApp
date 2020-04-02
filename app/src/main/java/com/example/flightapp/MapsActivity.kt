@@ -1,23 +1,17 @@
 package com.example.flightapp
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.Drawable
+
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.core.content.ContextCompat
+import com.example.flightapp.InfoWindow.CustomInfoWindowForGoogleMap
 import com.example.flightapp.JsonFetch.JsonFetch
 import com.example.flightapp.JsonFetch.State
 import com.example.flightapp.Markers.AirplaneVectorMarkers
-
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 
@@ -57,12 +51,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         cordsList.forEach {
             Log.d("FlightState",it.toString())
             val cord = LatLng(it.latitude,it.longitude)
-            mMap.addMarker(MarkerOptions().position(cord).title("Wroclaw marker").icon(plane.vectorMapDescriptor(applicationContext,R.drawable.ic_flight_black_24dp)))
+            mMap.addMarker(MarkerOptions().title("Country: " + it.origin_country).snippet("Velocity: " + it.velocity.toString() + " m/s").position(cord).rotation(it.true_track).icon(plane.vectorMapDescriptor(applicationContext,R.drawable.ic_flight_black_24dp)))
+            mMap.setInfoWindowAdapter(CustomInfoWindowForGoogleMap(this))
         }
+
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(wroclawCords, 4.8f))
-        mMap.addMarker(MarkerOptions().position(wroclawCords).title("Wroclaw marker").icon(plane.vectorMapDescriptor(applicationContext,R.drawable.ic_flight_black_24dp)))
-        mMap.addMarker(MarkerOptions().position(golCords).title("Goleniów marker").icon(plane.vectorMapDescriptor(applicationContext,R.drawable.ic_flight_black_24dp)))
-        mMap.addMarker(MarkerOptions().position(koluszkiCords).title("Koluszki  marker").icon(plane.vectorMapDescriptor(applicationContext,R.drawable.ic_flight_black_24dp)))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(wroclawCords))
 
     }

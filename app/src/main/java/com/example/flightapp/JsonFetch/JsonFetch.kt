@@ -20,13 +20,13 @@ class JsonFetch {
                     println("Failed to execute request")
                     countDownLatch.countDown()
                 }
-                
+
                 override fun onResponse(call: Call, response: Response) {
                     val body = response.body?.string()
 
                     val gson = GsonBuilder().create()
                     val allFlights = gson.fromJson(body, AllFlights::class.java)
-                    list = parseToState(allFlights)
+                    list = parseToStatesList(allFlights)
                     countDownLatch.countDown()
                 }
             })
@@ -34,27 +34,31 @@ class JsonFetch {
             return list
         }
 
-        private fun parseToState(flights: AllFlights): MutableList<State> {
+        private fun parseToStatesList(flights: AllFlights): MutableList<State> {
             val list = mutableListOf<State>()
             flights.states.forEach { list.add(getState(it)) }
             return list
         }
 
         private fun getState(state: Array<String?>): State {
-            val floatIndexes = listOf<Int>(5, 6, 9, 10)
+            val floatIndexes = listOf<Int>(5, 6, 9, 10, 13)
             if (state[3] == "" || state[3] == "null" || state[3] == null)
                 state[3] = "0"
             floatIndexes.forEach {
                 if (state[it] == "" || state[it] == "null" || state[it] == null)
                     state[it] = "0.0"
             }
+            if (state[1] == "" || state[1] == "null" || state[1] == null)
+                state[1] = "-"
             return State(
+                state[1]!!.trim(),
                 state[2]!!,
                 state[3]!!.toInt(),
                 state[5]!!.toDouble(),
                 state[6]!!.toDouble(),
                 state[9]!!.toFloat(),
-                state[10]!!.toFloat()
+                state[10]!!.toFloat(),
+                state[13]!!.toFloat()
             )
         }
     }
@@ -62,23 +66,10 @@ class JsonFetch {
 
 }
 
-// KLASY WRZUCIŁEM NA RAZIE TU, EBY BYŁO ŁATWIEJ
-class AllFlights(val states: MutableList<Array<String?>>) { // <-- JEŻELI TU DAMY STRING ZAMIAST STATE, TO DA JAKIES WYNIKI, ALE ZLE
+
+class AllFlights(val states: MutableList<Array<String?>>) {
 }
 
-class State(
-    val origin_country: String,
-    val time_position: Int,
-    val longitude: Double,
-    val latitude: Double,
-    val velocity: Float,
-    val true_track: Float
-) {
-
-    override fun toString(): String {
-        return "State(time_position=$time_position, longitude=$longitude, latitude=$latitude, velocity=$velocity, true_track=$true_track)"
-    }
-}
 
 
 

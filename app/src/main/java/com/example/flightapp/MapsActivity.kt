@@ -1,9 +1,10 @@
 package com.example.flightapp
 
 
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Point
 import android.os.Bundle
-import android.util.Log
+import android.util.DisplayMetrics
+import androidx.appcompat.app.AppCompatActivity
 import com.example.flightapp.InfoWindow.CustomInfoWindowForGoogleMap
 import com.example.flightapp.JsonFetch.JsonFetch
 import com.example.flightapp.JsonFetch.State
@@ -19,7 +20,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
-    private lateinit var cordsList : MutableList<State>
+    private lateinit var cordsList: MutableList<State>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +31,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         cordsList = JsonFetch.fetchJson()
+
     }
 
     /**
@@ -44,22 +46,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         val plane = AirplaneVectorMarkers()
-        // Add a marker in Sydney and move the camera
-        val wroclawCords = LatLng(51.107883, 17.038538)
-        val golCords = LatLng(53.564861, 14.827060)
-        val koluszkiCords = LatLng(51.744240, 19.807680)
+        val wroclawCords = LatLng(51.1078852,17.0385376)
         cordsList.forEach {
-            Log.d("FlightState",it.toString())
-            val cord = LatLng(it.latitude,it.longitude)
-            mMap.addMarker(MarkerOptions().title("Country: " + it.origin_country).snippet("Velocity: " + it.velocity.toString() + " m/s").position(cord).rotation(it.true_track).icon(plane.vectorMapDescriptor(applicationContext,R.drawable.ic_flight_black_24dp)))
+            val cord = LatLng(it.latitude, it.longitude)
+            mMap.addMarker(
+                MarkerOptions().title(it.callsign)
+                    .snippet("Country: ${it.origin_country}\n" +
+                            "Altitude ${it.geo_altitude.toInt()} m\n" +
+                            "Velocity: ${((it.velocity * 3.6).toInt()).toString()} km/h")
+                    .position(cord).rotation(it.true_track).icon(
+                    plane.vectorMapDescriptor(
+                        applicationContext,
+                        R.drawable.ic_flight_black_24dp
+                    )
+                )
+            )
             mMap.setInfoWindowAdapter(CustomInfoWindowForGoogleMap(this))
         }
-
+        //Set center on Wroclaw
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(wroclawCords, 4.8f))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(wroclawCords))
-
+        
     }
-
 
 
 

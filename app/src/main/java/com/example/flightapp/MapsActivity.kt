@@ -1,9 +1,9 @@
 package com.example.flightapp
 
-
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import com.example.flightapp.Coroutines.CoroutinesToAPI
 import com.example.flightapp.InfoWindow.CustomInfoWindowForGoogleMap
 import com.example.flightapp.JsonFetch.JsonFetch
 import com.example.flightapp.JsonFetch.State
@@ -15,7 +15,6 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.Default
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 
@@ -23,7 +22,6 @@ import kotlinx.coroutines.Dispatchers.Main
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
-    private lateinit var cordsList : MutableList<State>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,9 +31,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        CoroutineScope(IO).launch {
-            coroutinesFetchJson()
-        }
      }
 
     /**
@@ -57,39 +52,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.moveCamera(CameraUpdateFactory.newLatLng(wroclawCords))
 
 
+        val start = CoroutinesToAPI(mMap,this)
+        CoroutineScope(IO).launch {
+            start.coroutinesFetchJson()        }
+
     }
 
-    private suspend fun coroutinesFetchJson() {
-        println("Działa")
-        downloadJson()
-        delay(30000)
-        coroutinesFetchJson()
-    }
-
-    private suspend fun setCordListInMainThread(){
-        withContext(Main){
-           setMarkersOnMap()
-           // val plane = AirplaneVectorMarkers()
-            //val wroclawCords = LatLng(51.107883, 17.038538)
-            //mMap.addMarker(MarkerOptions().title("Country: ").snippet("Velocity: ").position(wroclawCords).rotation(0.0f).icon(plane.vectorMapDescriptor(applicationContext,R.drawable.ic_flight_black_24dp)))
-
-        }
-    }
-    private suspend fun downloadJson(){
-        cordsList = JsonFetch.fetchJson()
-        println("LIST " +cordsList)
-        setCordListInMainThread()
-    }
-
-    fun setMarkersOnMap(){
-        val plane = AirplaneVectorMarkers()
-        cordsList.forEach {
-            Log.d("FlightState",it.toString())
-            val cord = LatLng(it.latitude,it.longitude)
-
-            mMap.addMarker(MarkerOptions().title("Country: " + it.origin_country).snippet("Velocity: " + it.velocity.toString() + " m/s").position(cord).rotation(it.true_track).icon(plane.vectorMapDescriptor(applicationContext,R.drawable.ic_flight_black_24dp)))
-            //mMap.setInfoWindowAdapter(CustomInfoWindowForGoogleMap(this))
-
-        }
-    }
 }

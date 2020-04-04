@@ -31,7 +31,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-     }
+    }
 
     /**
      * Manipulates the map once available.
@@ -52,10 +52,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.moveCamera(CameraUpdateFactory.newLatLng(wroclawCords))
 
 
-        val start = CoroutinesToAPI(mMap,this)
+        val start = CoroutinesToAPI(mMap, this)
         CoroutineScope(IO).launch {
-            start.coroutinesFetchJson()        }
+            start.coroutinesFetchJson()
 
+        }
     }
+
 
 }

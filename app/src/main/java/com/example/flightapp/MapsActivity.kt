@@ -4,6 +4,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import com.example.flightapp.Coroutines.CoroutinesToAPI
+
+import android.graphics.Point
+import android.util.DisplayMetrics
 import com.example.flightapp.InfoWindow.CustomInfoWindowForGoogleMap
 import com.example.flightapp.JsonFetch.JsonFetch
 import com.example.flightapp.JsonFetch.State
@@ -22,6 +25,7 @@ import kotlinx.coroutines.Dispatchers.Main
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
+    private lateinit var cordsList: MutableList<State>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +34,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
     }
 
     /**
@@ -51,13 +54,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(wroclawCords, 4.8f))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(wroclawCords))
 
-
         val start = CoroutinesToAPI(mMap, this)
         CoroutineScope(IO).launch {
             start.coroutinesFetchJson()
 
         }
     }
-
 
 }

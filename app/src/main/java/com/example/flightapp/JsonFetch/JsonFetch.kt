@@ -9,6 +9,7 @@ class JsonFetch {
 
     companion object {
         fun fetchJson(): MutableList<State> {
+            println("ELKO")
             val url =
                 "https://opensky-network.org/api/states/all?fbclid=IwAR1obM0u5xI5RTXPSk1ssa_zbXtLnl1xFSW79azne1TaHs0uwVMTEB7SKys"
             val request = Request.Builder().url(url).build()

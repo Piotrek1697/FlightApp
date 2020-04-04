@@ -1,10 +1,12 @@
 package com.example.flightapp
 
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.util.Log
+import com.example.flightapp.Coroutines.CoroutinesToAPI
 
 import android.graphics.Point
-import android.os.Bundle
 import android.util.DisplayMetrics
-import androidx.appcompat.app.AppCompatActivity
 import com.example.flightapp.InfoWindow.CustomInfoWindowForGoogleMap
 import com.example.flightapp.JsonFetch.JsonFetch
 import com.example.flightapp.JsonFetch.State
@@ -15,6 +17,9 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -29,9 +34,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        cordsList = JsonFetch.fetchJson()
-
     }
 
     /**
@@ -45,30 +47,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        val plane = AirplaneVectorMarkers()
-        val wroclawCords = LatLng(51.1078852,17.0385376)
-        cordsList.forEach {
-            val cord = LatLng(it.latitude, it.longitude)
-            mMap.addMarker(
-                MarkerOptions().title(it.callsign)
-                    .snippet("Country: ${it.origin_country}\n" +
-                            "Altitude ${it.geo_altitude.toInt()} m\n" +
-                            "Velocity: ${((it.velocity * 3.6).toInt()).toString()} km/h")
-                    .position(cord).rotation(it.true_track).icon(
-                    plane.vectorMapDescriptor(
-                        applicationContext,
-                        R.drawable.ic_flight_black_24dp
-                    )
-                )
-            )
-            mMap.setInfoWindowAdapter(CustomInfoWindowForGoogleMap(this))
-        }
-        //Set center on Wroclaw
+        // Add a marker in Sydney and move the camera
+        val wroclawCords = LatLng(51.107883, 17.038538)
+        val golCords = LatLng(53.564861, 14.827060)
+        val koluszkiCords = LatLng(51.744240, 19.807680)
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(wroclawCords, 4.8f))
-        
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(wroclawCords))
+
+        val start = CoroutinesToAPI(mMap, this)
+        CoroutineScope(IO).launch {
+            start.coroutinesFetchJson()
+
+        }
     }
-
-
-
 
 }

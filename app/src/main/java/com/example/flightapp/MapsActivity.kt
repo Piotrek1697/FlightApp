@@ -29,6 +29,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlin.concurrent.schedule
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -64,7 +66,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 isFiltred = params.isFiltered
                 if (params.isFiltered) {
                     mMap.clear()
-                    putMarkersOnMap(mMap, params.statesList)
+                    putMarkersInSequence(mMap, params.statesList)
                 } else
                     Toast.makeText(applicationContext, params.statement, Toast.LENGTH_SHORT).show()
                 appearAnimation(searchView, searchButton)
@@ -154,12 +156,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private suspend fun setCordListInMainThread(list: MutableList<State>) {
         withContext(Dispatchers.Main) {
-            //mMap.clear()
+            mMap.clear()
             putMarkersOnMap(mMap, list)
         }
     }
 
-    private fun putMarkersOnMap(mMap: GoogleMap, statesList: MutableList<State>) {
+    private fun putMarkersInSequence(mMap: GoogleMap, statesList: MutableList<State>) {
+        CoroutineScope(Main).launch {
+            putMarkersOnMap(mMap, statesList)
+        }
+    }
+
+    private suspend fun putMarkersOnMap(mMap: GoogleMap, statesList: MutableList<State>) {
         val plane = AirplaneVectorMarkers()
         statesList.forEach {
             val cord = LatLng(it.latitude, it.longitude)
@@ -178,13 +186,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     )
             )
             mMap.setInfoWindowAdapter(CustomInfoWindowForGoogleMap(this))
-            //delay(1)
+            delay(1)
         }
     }
 
+
     fun allFlights(view: View) {
         mMap.clear()
-        putMarkersOnMap(mMap, cordsList)
+        putMarkersInSequence(mMap, cordsList)
         isFiltred = false
         filterQuery = ""
     }

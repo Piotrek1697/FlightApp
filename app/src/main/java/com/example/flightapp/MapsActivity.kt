@@ -2,6 +2,7 @@ package com.example.flightapp
 
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -15,6 +16,7 @@ import com.example.flightapp.Coroutines.CoroutinesToAPI
 
 import android.graphics.Point
 import android.util.DisplayMetrics
+import android.view.WindowManager
 import com.example.flightapp.InfoWindow.CustomInfoWindowForGoogleMap
 import com.example.flightapp.JsonFetch.JsonFetch
 import com.example.flightapp.JsonFetch.State
@@ -33,7 +35,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlin.concurrent.schedule
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SearchView.OnQueryTextListener {
 
     private lateinit var mMap: GoogleMap
 
@@ -46,6 +48,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+        //window.statusBarColor = Color.TRANSPARENT
         this.supportActionBar!!.hide()
         setContentView(R.layout.activity_maps)
         val mapFragment = supportFragmentManager
@@ -55,91 +59,34 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         searchView = findViewById(R.id.searchView)
         searchButton = findViewById(R.id.searchActionButton)
 
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-
-            override fun onQueryTextChange(newText: String): Boolean {
-                return false
-            }
-
-            override fun onQueryTextSubmit(query: String): Boolean {
-                val params = filterPerform(query)
-                isFiltred = params.isFiltered
-                if (params.isFiltered) {
-                    mMap.clear()
-                    putMarkersInSequence(mMap, params.statesList)
-                } else
-                    Toast.makeText(applicationContext, params.statement, Toast.LENGTH_SHORT).show()
-                appearAnimation(searchView, searchButton)
-                return false
-            }
-
-        })
-
+        searchView.setOnQueryTextListener(this)
     }
 
-    private fun filterPerform(query: String): FilterParams {
-        var outMessage: String = ""
-        var list: MutableList<State> = mutableListOf()
-        var isFiltered: Boolean = false
-        query.trim()
-        filterQuery = query
-        if (query != "") {
-            var hasLetters = false
-            var hasNumbers = false
-            query.forEach {
-                if (it.isLetter())
-                    hasLetters = true
-                if (it.isDigit())
-                    hasNumbers = true
-            }
-            //Searching by flight number
-            if (hasLetters && hasNumbers) {
-                //mMap.clear()
-                list =
-                    cordsList.filter { it.callsign == query.toUpperCase() } as MutableList<State>
-                if (list.size != 0)
-                    isFiltered = true
-                else {
-                    outMessage = "There is no flights with number: ${query}"
-                    isFiltered = false
-                }
-            } else if (isCountry(query)) { //Searching by country
-                //mMap.clear()
-                list =
-                    cordsList.filter { it.origin_country.toLowerCase() == query.toLowerCase() } as MutableList<State>
-                if (list.size != 0)
-                    isFiltered = true
-                else {
-                    outMessage = "There is no flights with country: ${query}"
-                    isFiltered = false
-                }
-            } else {
-                outMessage = "Wrong query string"
-                isFiltered = false
-            }
-        }
-
-        searchView.setQuery("", false);
-        searchView.clearFocus()
-        return FilterParams(list, outMessage, isFiltered)
+    override fun onQueryTextChange(newText: String): Boolean {
+        return false
     }
 
+    override fun onQueryTextSubmit(query: String): Boolean {
+        val params = filterPerform(query)
+        isFiltred = params.isFiltered
+        if (params.isFiltered) {
+            mMap.clear()
+            putMarkersInSequence(mMap, params.statesList)
+        } else
+            Toast.makeText(applicationContext, params.statement, Toast.LENGTH_SHORT).show()
+        appearAnimation(searchView, searchButton)
+        return false
+    }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         val wroclawCords = LatLng(51.1078852, 17.0385376)
-        //putMarkersOnMap(mMap, cordsList)
         //Set center on Wroclaw
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(wroclawCords, 4.8f))
-        //val start = CoroutinesToAPI(mMap, this)
-        CoroutineScope(IO).launch {
-            coroutinesFetchJson()
-
-        }
+        CoroutineScope(IO).launch { coroutinesFetchJson() }
     }
 
-    suspend fun coroutinesFetchJson() {
-        println("Działa")
+    private suspend fun coroutinesFetchJson() {
         downloadJson()
         delay(30000)
         coroutinesFetchJson()
@@ -205,10 +152,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     fun searchViewAction(view: View) {
         searchView.clearFocus()
+        appearAnimation(searchView, searchButton)
     }
 
     private fun appearAnimation(disappearView: View, appearView: View) {
-        ObjectAnimator.ofFloat(disappearView, View.ALPHA, 1f, 0f).setDuration(1000).start()
+        ObjectAnimator.ofFloat(disappearView, View.ALPHA, 1f, 0f).setDuration(800).start()
         disappearView.isClickable = false
         appearView.isClickable = true
         appearView.visibility = View.VISIBLE
@@ -244,6 +192,53 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 isCountry = true
         }
         return isCountry
+    }
+
+    private fun filterPerform(query: String): FilterParams {
+        var outMessage: String = ""
+        var list: MutableList<State> = mutableListOf()
+        var isFiltered: Boolean = false
+        query.trim()
+        filterQuery = query
+        if (query != "") {
+            var hasLetters = false
+            var hasNumbers = false
+            query.forEach {
+                if (it.isLetter())
+                    hasLetters = true
+                if (it.isDigit())
+                    hasNumbers = true
+            }
+            //Searching by flight number
+            if (hasLetters && hasNumbers) {
+                //mMap.clear()
+                list =
+                    cordsList.filter { it.callsign == query.toUpperCase() } as MutableList<State>
+                if (list.size != 0)
+                    isFiltered = true
+                else {
+                    outMessage = "There is no flights with number: ${query}"
+                    isFiltered = false
+                }
+            } else if (isCountry(query)) { //Searching by country
+                //mMap.clear()
+                list =
+                    cordsList.filter { it.origin_country.toLowerCase() == query.toLowerCase() } as MutableList<State>
+                if (list.size != 0)
+                    isFiltered = true
+                else {
+                    outMessage = "There is no flights with country: ${query}"
+                    isFiltered = false
+                }
+            } else {
+                outMessage = "Wrong query string"
+                isFiltered = false
+            }
+        }
+
+        searchView.setQuery("", false);
+        searchView.clearFocus()
+        return FilterParams(list, outMessage, isFiltered)
     }
 }
 

@@ -41,18 +41,25 @@ class CoroutinesToAPI(val mMap: GoogleMap, val context: Context) {
 
         cordsList.forEach {
             val cord = LatLng(it.latitude, it.longitude)
-            mMap.addMarker(
-                MarkerOptions().title("Country: " + it.origin_country).snippet("Velocity: " + it.velocity.toString() + " m/s").position(
-                    cord
-                ).rotation(it.true_track).icon(
-                    plane.vectorMapDescriptor(
-                        context,
-                        R.drawable.ic_flight_black_24dp
-                    )
+            cordsList.forEach {
+                val cord = LatLng(it.latitude, it.longitude)
+                mMap.addMarker(
+                    MarkerOptions().title(it.callsign)
+                        .snippet(
+                            "Country: ${it.origin_country}\n" +
+                                    "Altitude ${it.geo_altitude.toInt()} m\n" +
+                                    "Velocity: ${((it.velocity * 3.6).toInt()).toString()} km/h"
+                        )
+                        .position(cord).rotation(it.true_track).icon(
+                            plane.vectorMapDescriptor(
+                                context,
+                                R.drawable.ic_flight_black_24dp
+                            )
+                        )
                 )
-            )
-            mMap.setInfoWindowAdapter(CustomInfoWindowForGoogleMap(context))
-            delay(1)
+                mMap.setInfoWindowAdapter(CustomInfoWindowForGoogleMap(context))
+                delay(1)
+            }
         }
     }
 }

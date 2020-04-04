@@ -11,6 +11,10 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.flightapp.Coroutines.CoroutinesToAPI
+
+import android.graphics.Point
+import android.util.DisplayMetrics
 import com.example.flightapp.InfoWindow.CustomInfoWindowForGoogleMap
 import com.example.flightapp.JsonFetch.JsonFetch
 import com.example.flightapp.JsonFetch.State
@@ -23,6 +27,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -90,6 +96,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
         })
+
     }
 
     /**
@@ -104,9 +111,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         val wroclawCords = LatLng(51.1078852, 17.0385376)
-        putMarkersOnMap(mMap, cordsList)
+        //putMarkersOnMap(mMap, cordsList)
         //Set center on Wroclaw
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(wroclawCords, 4.8f))
+        val start = CoroutinesToAPI(mMap, this)
+        CoroutineScope(IO).launch {
+            start.coroutinesFetchJson()
+
+        }
     }
 
     private fun putMarkersOnMap(mMap: GoogleMap, statesList: MutableList<State>) {
@@ -148,7 +160,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun appearAnimation(disappearView: View, appearView: View) {
         ObjectAnimator.ofFloat(disappearView, View.ALPHA, 1f, 0f).setDuration(1000).start()
         disappearView.isClickable = false
-
         appearView.isClickable = true
         appearView.visibility = View.VISIBLE
         ObjectAnimator.ofFloat(appearView, View.ALPHA, 0f, 1f).setDuration(500).start()

@@ -130,7 +130,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SearchView.OnQuery
                             applicationContext,
                             R.drawable.ic_flight_black_24dp
                         )
-                    )
+                    ).flat(true)
             )
             mMap.setInfoWindowAdapter(CustomInfoWindowForGoogleMap(this))
             if (i%15 == 0)

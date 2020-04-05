@@ -12,11 +12,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.flightapp.Coroutines.CoroutinesToAPI
-
-import android.graphics.Point
-import android.util.DisplayMetrics
 import android.view.WindowManager
+import android.widget.TextView
 import com.example.flightapp.InfoWindow.CustomInfoWindowForGoogleMap
 import com.example.flightapp.JsonFetch.JsonFetch
 import com.example.flightapp.JsonFetch.State
@@ -32,10 +29,9 @@ import java.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlin.concurrent.schedule
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SearchView.OnQueryTextListener {
+open class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SearchView.OnQueryTextListener {
 
     private lateinit var mMap: GoogleMap
 
@@ -97,8 +93,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SearchView.OnQuery
         if (isFiltred) {
             val params = filterPerform(filterQuery)
             setCordListInMainThread(params.statesList)
-        } else
+        } else {
             setCordListInMainThread(cordsList)
+        }
     }
 
     private suspend fun setCordListInMainThread(list: MutableList<State>) {
@@ -116,6 +113,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SearchView.OnQuery
 
     private suspend fun putMarkersOnMap(mMap: GoogleMap, statesList: MutableList<State>) {
         val plane = AirplaneVectorMarkers()
+        setAmountOfPlane(statesList.size)
+
         statesList.forEachIndexed {i,it ->
             val cord = LatLng(it.latitude, it.longitude)
             mMap.addMarker(
@@ -168,7 +167,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SearchView.OnQuery
             1.0f,
             1.0f,
             Animation.RELATIVE_TO_SELF,
-            0f,
+            1.0f,
             Animation.RELATIVE_TO_SELF,
             0.5f
         )
@@ -240,6 +239,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SearchView.OnQuery
         searchView.setQuery("", false);
         searchView.clearFocus()
         return FilterParams(list, outMessage, isFiltered)
+    }
+
+    private fun setAmountOfPlane(amount: Int){
+        val textView: TextView = findViewById(R.id.planeAmountView)
+        textView.text = amount.toString()
     }
 }
 

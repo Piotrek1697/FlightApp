@@ -114,8 +114,8 @@ open class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SearchView.On
     private suspend fun putMarkersOnMap(mMap: GoogleMap, statesList: MutableList<State>) {
         val plane = AirplaneVectorMarkers()
         setAmountOfPlane(statesList.size)
-
-        statesList.forEachIndexed {i,it ->
+        val filteredStatesList = statesList.filter { it.latitude != 0.0 && it.longitude != 0.0} as MutableList<State>
+        filteredStatesList.forEachIndexed {i,it ->
             val cord = LatLng(it.latitude, it.longitude)
             mMap.addMarker(
                 MarkerOptions().title(it.callsign)
